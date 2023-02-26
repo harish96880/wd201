@@ -1,5 +1,5 @@
 const todoList = require("../todo");
-const { all, markAsComplete, add } = todoList();
+const { all, markAsComplete, add, overdue, dueLater, dueToday } = todoList();
 
 describe("Todo New Test Suite", () => {
   beforeAll(() => {
@@ -44,22 +44,56 @@ describe("Todo New Test Suite", () => {
   });
 
   test("Should check the retreive of Overdue", () => {
-    expect(all[0].dueDate).toBe(
-      new Date(new Date().setDate(new Date().getDate() - 1))
+    expect(
+      all.filter((item) => item.dueDate < new Date().toISOString().slice(0, 10))
+        .length
+    ).toBe(1);
+    add({
+      title: "Test Over Due 2",
+      completed: false,
+      dueDate: new Date(new Date().setDate(new Date().getDate() - 1))
         .toISOString()
-        .slice(0, 10)
-    );
+        .slice(0, 10),
+    });
+    expect(
+      all.filter((item) => item.dueDate < new Date().toISOString().slice(0, 10))
+        .length
+    ).toBe(2);
   });
 
-  test("Should check the retreive of Duetoday", () => {
-    expect(all[1].dueDate).toBe(new Date().toISOString().slice(0, 10));
+  test("Should check the retreive of due today", () => {
+    expect(
+      all.filter(
+        (item) => item.dueDate === new Date().toISOString().slice(0, 10)
+      ).length
+    ).toBe(1);
+    add({
+      title: "Test Due Today",
+      completed: false,
+      dueDate: new Date().toISOString().slice(0, 10),
+    });
+    expect(
+      all.filter(
+        (item) => item.dueDate === new Date().toISOString().slice(0, 10)
+      ).length
+    ).toBe(2);
   });
+});
 
-  test("Should check the retreive of DueLater", () => {
-    expect(all[2].dueDate).toBe(
-      new Date(new Date().setDate(new Date().getDate() + 1))
-        .toISOString()
-        .slice(0, 10)
-    );
+test("Should check the retreive of Overdue", () => {
+  expect(
+    all.filter((item) => item.dueDate > new Date().toISOString().slice(0, 10))
+      .length
+  ).toBe(1);
+  add({
+    title: "Test Over Later 2",
+    completed: false,
+    dueDate: new Date(new Date().setDate(new Date().getDate() + 1))
+      .toISOString()
+      .slice(0, 10),
   });
+  expect(
+    all.filter((item) => item.dueDate > new Date().toISOString().slice(0, 10))
+      .length
+  ).toBe(2);
 });
