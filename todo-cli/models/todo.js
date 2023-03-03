@@ -15,15 +15,15 @@ module.exports = (sequelize, DataTypes) => {
       console.log("My Todo list \n");
 
       console.log("Overdue");
-      await this.overdue();
+      await Todo.overdue();
       console.log("\n");
 
       console.log("Due Today");
-      await this.dueToday();
+      await Todo.dueToday();
       console.log("\n");
 
       console.log("Due Later");
-      await this.dueLater();
+      await Todo.dueLater();
     }
 
     static async overdue() {
