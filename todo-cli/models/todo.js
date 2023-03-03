@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
 
     static async overdue() {
       const overdueRetreive = await Todo.findAll({
+        order: [["id", "ASC"]],
         where: {
           dueDate: {
             [Op.lt]: new Date(),
@@ -41,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
     }
     static async dueToday() {
       const dueTodayRetreive = await Todo.findAll({
+        order: [["id", "ASC"]],
         where: {
           dueDate: {
             [Op.et]: new Date(),
@@ -55,6 +57,7 @@ module.exports = (sequelize, DataTypes) => {
 
     static async dueLater() {
       const duelaterRetreive = await Todo.findAll({
+        order: [["id", "ASC"]],
         where: {
           dueDate: {
             [Op.gt]: new Date(),
