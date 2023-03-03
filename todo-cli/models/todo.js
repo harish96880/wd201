@@ -16,11 +16,11 @@ module.exports = (sequelize, DataTypes) => {
 
       console.log("Overdue");
       await Todo.overdue();
-      console.log("\n");
+      console.log();
 
       console.log("Due Today");
       await Todo.dueToday();
-      console.log("\n");
+      console.log();
 
       console.log("Due Later");
       await Todo.dueLater();
