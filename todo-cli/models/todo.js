@@ -70,6 +70,17 @@ module.exports = (sequelize, DataTypes) => {
       console.log(duelaterItems);
     }
 
+    static async markAsComplete(id) {
+      await Todo.update(
+        { completed: true },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+    }
+
     displayableString() {
       let checkbox = this.completed ? "[x]" : "[ ]";
       return `${this.id}. ${checkbox} ${this.title} ${this.dueDate}`;
@@ -79,6 +90,7 @@ module.exports = (sequelize, DataTypes) => {
       return `${this.id}. ${checkbox} ${this.title}`;
     }
   }
+
   Todo.init(
     {
       title: DataTypes.STRING,
