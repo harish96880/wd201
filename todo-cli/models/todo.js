@@ -1,13 +1,7 @@
 "use strict";
-const { Model, where } = require("sequelize");
-const { Op } = require("sequelize");
+const { Model, Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Todo extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static async addTask(params) {
       return await Todo.create(params);
     }
@@ -15,82 +9,72 @@ module.exports = (sequelize, DataTypes) => {
       console.log("My Todo list \n");
 
       console.log("Overdue");
-      await Todo.overdue();
+      // FILL IN HERE
+      const over = await this.overdue();
+      const overdue = over.map((todo) => todo.displayableString());
+      console.log(overdue.join("\n").trim());
+
       console.log();
 
       console.log("Due Today");
-      await Todo.dueToday();
+      // FILL IN HERE
+      const today = await this.overdue();
+      const duetoday = today.map((todo) => todo.displayableString());
+      console.log(duetoday.join("\n").trim());
       console.log();
 
       console.log("Due Later");
-      await Todo.dueLater();
+      const later = await this.overdue();
+      const duelater = later.map((todo) => todo.displayableString());
+      console.log(duelater.join("\n").trim());
     }
 
     static async overdue() {
-      const overdueRetreive = await Todo.findAll({
-        order: [["id", "ASC"]],
+      const date = new Date();
+      return await Todo.findAll({
         where: {
-          dueDate: {
-            [Op.lt]: new Date(),
-          },
+          dueDate: { [Op.lt]: date },
         },
+        order: [["dueDate", "ASC"]],
       });
-      const overdueItems = overdueRetreive
-        .map((todo) => todo.displayableString())
-        .join("\n");
-      console.log(overdueItems);
     }
+
     static async dueToday() {
-      const dueTodayRetreive = await Todo.findAll({
-        order: [["id", "ASC"]],
+      const date = new Date();
+      return await Todo.findAll({
         where: {
-          dueDate: {
-            [Op.et]: new Date(),
-          },
+          dueDate: { [Op.eq]: date },
         },
+        order: [["dueDate", "ASC"]],
       });
-      const dueTodayItems = dueTodayRetreive
-        .map((todo) => todo.displayableStringToday())
-        .join("\n");
-      console.log(dueTodayItems);
     }
 
     static async dueLater() {
-      const duelaterRetreive = await Todo.findAll({
-        order: [["id", "ASC"]],
+      const date = new Date();
+      return await Todo.findAll({
         where: {
-          dueDate: {
-            [Op.gt]: new Date(),
-          },
+          dueDate: { [Op.gt]: date },
         },
+        order: [["dueDate", "ASC"]],
       });
-      const duelaterItems = duelaterRetreive
-        .map((todo) => todo.displayableString())
-        .join("\n");
-      console.log(duelaterItems);
     }
 
     static async markAsComplete(id) {
-      await Todo.update(
-        { completed: true },
-        {
-          where: {
-            id: id,
-          },
-        }
-      );
+      const todo = await Todo.findByPk(id);
+      if (todo) {
+        todo.completed = true;
+        await todo.save();
+      }
     }
 
     displayableString() {
       let checkbox = this.completed ? "[x]" : "[ ]";
-      return `${this.id}. ${checkbox} ${this.title} ${this.dueDate}`;
-    }
-    displayableStringToday() {
-      let checkbox = this.completed ? "[x]" : "[ ]";
-      return `${this.id}. ${checkbox} ${this.title}`;
+      const day = new Date(this.dueDate);
+      return day.getDate() === new Date().getDate()
+        ? `${this.id}. ${checkbox} ${this.title}`.trim()
+        : `${this.id}. ${checkbox} ${this.title} ${this.dueDate}`.trim();
     }
   }
-
   Todo.init(
     {
       title: DataTypes.STRING,
