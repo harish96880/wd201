@@ -11,7 +11,7 @@
     "sequelize-cli": "^6.6.0",
     "supertest": "^6.3.3"
   },
-  "name": "l6-milestone-template",
+  "name": "todo-app",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
