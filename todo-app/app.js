@@ -27,7 +27,7 @@ app.get("/", async (request, response) => {
       duetodayTodoItems,
     });
   } else {
-    response.json(overdueTodoItems);
+    response.json({ overdueTodoItems, duetodayTodoItems, duelaterTodoItems });
   }
 });
 
