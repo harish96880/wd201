@@ -4,9 +4,13 @@ const { Todo } = require("./models");
 const bodyParser = require("body-parser");
 const path = require("path");
 const { Model, Op } = require("sequelize");
+var csurf = require("csurf");
+var cookieParser = require("cookie-parser");
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser("shh! some secret string"));
+app.use(csurf({ cookie: true }));
 
 app.set("view engine", "ejs");
 
@@ -22,9 +26,11 @@ app.get("/", async (request, response) => {
   // });
   if (request.accepts("html")) {
     response.render("index", {
+      title: "Todo application",
       overdueTodoItems,
       duelaterTodoItems,
       duetodayTodoItems,
+      csrfToken: request.csrfToken(),
     });
   } else {
     response.json({ overdueTodoItems, duetodayTodoItems, duelaterTodoItems });
