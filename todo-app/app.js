@@ -6,11 +6,14 @@ const path = require("path");
 const { Model, Op } = require("sequelize");
 
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
 
 app.get("/", async (request, response) => {
-  const allTodoItems = await Todo.getTodo();
+  const overdueTodoItems = await Todo.overdueTodo();
+  const duetodayTodoItems = await Todo.duetodayTodo();
+  const duelaterTodoItems = await Todo.duelaterTodo();
   // const overDueItems = await Todo.getTodo({
   //   where: {
   //     dueDate: { [Op.lt]: date },
@@ -18,9 +21,13 @@ app.get("/", async (request, response) => {
   //   order: [["dueDate", "ASC"]],
   // });
   if (request.accepts("html")) {
-    response.render("index", { allTodoItems });
+    response.render("index", {
+      overdueTodoItems,
+      duelaterTodoItems,
+      duetodayTodoItems,
+    });
   } else {
-    response.json(allTodoItems);
+    response.json(overdueTodoItems);
   }
 });
 
@@ -54,8 +61,11 @@ app.get("/todos/:id", async function (request, response) {
 
 app.post("/todos", async function (request, response) {
   try {
-    const todo = await Todo.addTodo(request.body);
-    return response.json(todo);
+    const todo = await Todo.addTodo({
+      title: request.body.title,
+      dueDate: request.body.dueDate,
+    });
+    return response.redirect("/");
   } catch (error) {
     console.log(error);
     return response.status(422).json(error);
