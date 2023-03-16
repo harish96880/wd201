@@ -37,6 +37,15 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    static markAsCompletedItems() {
+      return this.findAll({
+        where: {
+          completed: true,
+        },
+        order: [["id", "ASC"]],
+      });
+    }
+
     static duelaterTodo() {
       return this.findAll({
         where: {
@@ -66,10 +75,8 @@ module.exports = (sequelize, DataTypes) => {
       return this.update({ completed: true });
     }
 
-    setCompletionStatus({ completed }) {
-      if (completed == true) {
-        return this.update({ completed: false });
-      } else return this.update({ completed: true });
+    setCompletionStatus(boolean) {
+      return this.update({ completed: boolean });
     }
   }
   Todo.init(

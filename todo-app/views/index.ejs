@@ -14,11 +14,13 @@
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
       function updateTodo(id) {
-        fetch(`/todos/${id}/markAsCompleted`, {
+        const boolean = document.querySelector(`#todo-checkbox-${id}`).checked;
+        console.log(boolean);
+        fetch(`/todos/${id}`, {
           method: "put",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            // completed: Boolean,
+            completed: boolean,
             _csrf: token,
           }),
         })
@@ -91,7 +93,8 @@
           <%- include("todos.ejs", {title: "Overdue", data: overdueTodoItems})
           %> <%- include("todos.ejs", {title: "Due Today", data:
           duetodayTodoItems}) %> <%- include("todos.ejs", {title: "Due Later",
-          data: duelaterTodoItems}) %>
+          data: duelaterTodoItems}) %> <%- include('todos.ejs', {title:
+          "Completed Items", data: completedTodoItems}) %>
           <!-- <h5 id="count-due-today">Due Today</h5> -->
           <!-- <ul class="list-none">
             <li>
