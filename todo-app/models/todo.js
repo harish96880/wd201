@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       return this.findAll({
         where: {
           dueDate: { [Op.lt]: new Date() },
+          completed: false,
         },
         order: [["dueDate", "ASC"]],
       });
@@ -32,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       return this.findAll({
         where: {
           dueDate: { [Op.eq]: new Date() },
+          completed: false,
         },
         order: [["dueDate", "ASC"]],
       });
@@ -50,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       return this.findAll({
         where: {
           dueDate: { [Op.gt]: new Date() },
+          completed: false,
         },
         order: [["dueDate", "ASC"]],
       });
