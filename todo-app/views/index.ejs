@@ -1,172 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="<%= csrfToken %>" />
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./css/styles.css" rel="stylesheet">
 
-    <!--CSS File-->
-    <link href="./css/styles.css" rel="stylesheet" />
-
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      var token = document
+        var token = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
-      function updateTodo(id) {
-        const boolean = document.querySelector(`#todo-checkbox-${id}`).checked;
-        console.log(boolean);
-        fetch(`/todos/${id}`, {
-          method: "put",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            completed: boolean,
-            _csrf: token,
-          }),
-        })
-          .then((res) => {
-            if (res.ok) {
-              window.location.reload();
-            }
-          })
-          .catch((err) => console.error(err));
-      }
-
-      function deleteTodo(id) {
-        fetch(`/todos/${id}`, {
-          method: "delete",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            _csrf: token,
-          }),
-        })
-          .then((res) => {
-            if (res.ok) {
-              window.location.reload();
-            }
-          })
-          .catch((err) => console.error(err));
-      }
+        function updateTodo(id){
+            const bool = document.querySelector(`#todo-checkbox-${id}`).checked;
+            console.log(bool);
+            fetch(`/todos/${id}`,{
+                
+                method: "put",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    completed: bool,    
+                    _csrf: token
+                })
+            })
+            .then((res) =>{
+                if(res.ok){
+                    window.location.reload();
+                }
+               
+            })
+            .catch((err)=> console.log(err));
+        }
+        function deleteTodo(id){
+            fetch(`/todos/${id}`,{
+                method: "delete",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    _csrf: token
+                })
+            })
+            .then((res) =>{
+                if(res.ok){
+                    window.location.reload();
+                }
+               
+            })
+            .catch((err)=> console.log(err));
+        }
     </script>
+    <title>Document</title>
+</head>
+<body>
+    <div class = "grid grid-clos-6">
+        <div class="col-start-3 col-span-2">
+            <%- include('header.ejs') %>
+            <form action="/todos" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <div class="flex gap-2 py-4">
+                    <div class="flex-auto">
+                        <input type="text" name="title" placeholder="whats next" class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm" required />
+                    </div>
+                    <div class="flex-auto">
+                        <input type="date" name="dueDate" class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm leading-4" />
+                    </div>
+                    <div class="flex-none">
+                        <button type="submit"  class="bg-green-600 text-white px-5 py-1.5 rounded mr-2 mb-2">Add</button>
+                    </div>
 
-    <!--Tailwind css-->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <title>To-Do Manager</title>
-  </head>
-  <body>
-    <div class="grid grid-cols-6">
-      <div class="col-start-3 col-span-2">
-        <%- include("header.ejs") %>
-        <form action="/todos" method="post">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <div class="flex gap-2 py-4">
-            <div class="flex-auto">
-              <input
-                type="text"
-                name="title"
-                placeholder="Whats next?"
-                class="border border-gray-300 text-gray-900 w-full p-2 text-sm rounded"
-                required
-              />
-            </div>
-            <div class="flex-auto">
-              <input
-                type="date"
-                name="dueDate"
-                placeholder=""
-                class="border border-gray-300 text-gray-900 w-full p-2 text-sm leading-4 rounded"
-                required
-              />
-            </div>
-            <div class="flex-none">
-              <button
-                type="submit"
-                class="bg-green-600 text-white px-5 py-1.5 font-medium rounded"
-              >
-                Add
-              </button>
-            </div>
-          </div>
-        </form>
-        <div>
-          <%- include("todos.ejs", {title: "Overdue", data: overdueTodoItems})
-          %> <%- include("todos.ejs", {title: "Due Today", data:
-          duetodayTodoItems}) %> <%- include("todos.ejs", {title: "Due Later",
-          data: duelaterTodoItems}) %> <%- include('todos.ejs', {title:
-          "Completed Items", data: completedTodoItems}) %>
-          <!-- <h5 id="count-due-today">Due Today</h5> -->
-          <!-- <ul class="list-none">
-            <li>
-              <div
-                class="flex items-center w-fit my-2 px-2 py-1 rounded hover:bg-purple-100"
-              >
-                <input
-                  id="todo-checkbox-3"
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 rounded border"
-                />
-                <label
-                  for="todo-checkbox-3"
-                  class="ml-2 text-sm text-gray-600 cursor-pointer"
-                  >Recharge Mobile</label
-                >
-              </div>
-            </li>
-            <li>
-              <div
-                class="flex items-center w-fit my-2 px-2 py-1 rounded hover:bg-purple-100"
-              >
-                <input
-                  id="todo-checkbox-4"
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 rounded border"
-                />
-                <label
-                  for="todo-checkbox-4"
-                  class="ml-2 text-sm text-gray-600 cursor-pointer"
-                  >Buy Carpet</label
-                >
-              </div>
-            </li>
-          </ul> -->
-          <!-- <h5 id="count-due-later">Due Later</h5> -->
-          <!-- <ul class="list-none">
-            <li>
-              <div
-                class="flex items-center w-fit my-2 px-2 py-1 rounded hover:bg-purple-100"
-              >
-                <input
-                  id="todo-checkbox-5"
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 rounded border"
-                />
-                <label
-                  for="todo-checkbox-5"
-                  class="ml-2 text-sm text-gray-600 cursor-pointer"
-                  >Watch cinema</label
-                >
-              </div>
-            </li>
-            <li>
-              <div
-                class="flex items-center w-fit my-2 px-2 py-1 rounded hover:bg-purple-100"
-              >
-                <input
-                  id="todo-checkbox-6"
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 rounded border"
-                />
-                <label
-                  for="todo-checkbox-6"
-                  class="ml-2 text-sm text-gray-600 cursor-pointer"
-                  >Service the bike</label
-                >
-              </div>
-            </li>
-          </ul> -->
+                </div>
+            </form>
+           
+               <%- include('todos.ejs',{title: "Overdue", data: overdue}) %>
+               <%- include('todos.ejs',{title: "Due Today", data: duetoday}) %>
+               <%- include('todos.ejs',{title: "Due Later", data: duelater}) %>
+               <%- include('todos.ejs', {title:"Completed Items", data: completed}) %>
         </div>
-      </div>
     </div>
-  </body>
+</body> 
 </html>

@@ -1,11 +1,6 @@
 body{
     background-color: whitesmoke;
 }
-
-body h3{
-    color: black;
-}
-
 .todo-item:hover .trash-icon{
     display: block;
 }

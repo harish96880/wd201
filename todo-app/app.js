@@ -1,130 +1,92 @@
-const express = require("express");
-const app = express();
-const { Todo } = require("./models");
-const bodyParser = require("body-parser");
-const path = require("path");
-const { Model, Op } = require("sequelize");
-var csurf = require("tiny-csrf");
-var cookieParser = require("cookie-parser");
-
+const { request, response } = require('express')
+var csrf = require("tiny-csrf");
+//var csurf = require("tiny-csrf");
+const express = require('express')
+const app = express()
+const {Todo} = require("./models")
+const bodyParser = require('body-parser')
+const cookieParser = require("cookie-parser")
+const path = require("path")
 app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser("shh! some secret string"));
-app.use(csurf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+app.use(csrf("this_should_be_32_character_long",["POST","PUT","DELETE"]));
+app.set("view engine","ejs");
 
-app.set("view engine", "ejs");
+app.get("/",async (request,response)=>{
+  const overdue = await Todo.overdueTodo();
+  const duetoday = await Todo.duetodayTodo();
+  const duelater = await Todo.duelaterTodo();
+  const completed = await Todo.markAsCompleteditems();
 
-app.get("/", async (request, response) => {
-  const overdueTodoItems = await Todo.overdueTodo();
-  const duetodayTodoItems = await Todo.duetodayTodo();
-  const duelaterTodoItems = await Todo.duelaterTodo();
-  const completedTodoItems = await Todo.markAsCompletedItems();
-  // const overDueItems = await Todo.getTodo({
-  //   where: {
-  //     dueDate: { [Op.lt]: date },
-  //   },
-  //   order: [["dueDate", "ASC"]],
-  // });
-  if (request.accepts("html")) {
-    response.render("index", {
+ // const alltodos = await Todo.getTodos();
+  if(request.accepts("html")){
+    response.render('index',{
       title: "Todo application",
-      overdueTodoItems,
-      duelaterTodoItems,
-      duetodayTodoItems,
-      completedTodoItems,
+      overdue,
+      duelater,
+      duetoday,
+      completed,
       csrfToken: request.csrfToken(),
     });
-  } else {
-    response.json({ overdueTodoItems, duetodayTodoItems, duelaterTodoItems });
+  }else{
+    response.json({
+       overdue, duetoday, duelater,completed
+    })
   }
+
+
 });
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname,'public')));
 
-app.get("/todos", async function (_request, response) {
-  console.log("Processing list of all Todos ...");
-  // FILL IN YOUR CODE HERE
+  app.get("/todos", async (request, response) => {
+    try {
+      const todos = await Todo.findAll({ order: [["id", "ASC"]] });
+      return response.json(todos);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  });
+app.post("/todos", async(request,response)=>{
+    console.log("creating a todo",request.body)
+    try {
+       await Todo.addTodo({title: request.body.title,dueDate: request.body.dueDate, completed: false})
+        return response.redirect("/");
+    } catch (error) {
+        console.log("error")
+        return response.status(422).json(error)
+    }
+   
+})
 
-  // First, we have to query our PostgerSQL database using Sequelize to get list of all Todos.
-  // Then, we have to respond with all Todos, like:
-  // response.send(todos)
-  try {
-    const todo = await Todo.getTodo();
-    return response.json(todo);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
-  }
-});
+app.put("/todos/:id",async(request,response)=>{
+    console.log("update a todo",request.params.id)
+    const todo = await Todo.findByPk(request.params.id)
+    
+    try {
+        const updatedTodo = await todo.markAsCompleted();
+        return response.json(updatedTodo);
+      } catch (error) {
+        console.log(error);
+        return response.status(422).json(error);
+      }
+})
 
-app.get("/todos/:id", async function (request, response) {
+app.delete("/todos/:id",async(request,response)=>{
   try {
     const todo = await Todo.findByPk(request.params.id);
-    return response.json(todo);
+    if (todo) {
+      await todo.delete();
+      return response.json(true);
+    } else {
+      return response.json(false);
+    }
   } catch (error) {
     console.log(error);
-    return response.status(422).json(error);
+    return response.status(422).json(false);
   }
-});
-
-app.post("/todos", async function (request, response) {
-  try {
-    const todo = await Todo.addTodo({
-      title: request.body.title,
-      dueDate: request.body.dueDate,
-    });
-    return response.redirect("/");
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
-  }
-});
-
-app.put("/todos/:id/markAsCompleted", async (request, response) => {
-  console.log("we have to update a todo with ID:", request.params.id);
-  const todo = await Todo.findByPk(request.params.id);
-  try {
-    const updatedtodo = await todo.setCompletionStatus(request.body.completed);
-    return response.json(updatedtodo);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
-  }
-});
-
-app.put("/todos/:id", async function (request, response) {
-  const todo = await Todo.findByPk(request.params.id);
-  try {
-    const updatedTodo = await todo.setCompletionStatus(request.body.completed);
-    return response.json(updatedTodo);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
-  }
-});
-
-app.delete("/todos/:id", async function (request, response) {
-  console.log("We have to delete a Todo with ID: ", request.params.id);
-
-  try {
-    await Todo.remove(request.params.id);
-    return response.json(true);
-  } catch (error) {
-    return response.status(422).json(error);
-  }
-  // FILL IN YOUR CODE HERE
-
-  // First, we have to query our database to delete a Todo by ID.
-  // Then, we have to respond back with true/false based on whether the Todo was deleted or not.
-  // response.send(true)
-  const todo = await Todo.findByPk(request.params.id);
-  try {
-    const deleteTodo = await todo.deleteTodo({ todo: request.params.id });
-    return response.send(true);
-  } catch (error) {
-    console.log(error);
-    return response.send(false);
-  }
-});
-
+})
 module.exports = app;
+
