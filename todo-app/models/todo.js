@@ -8,51 +8,62 @@ module.exports = (sequelize, DataTypes) => {
      * The `Models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Todo.belongsTo(models.User, {
+        foreignKey: "userId",
+      });
     }
 
-    static addTodo({ title, dueDate }) {
-      return this.create({ title: title, dueDate: dueDate, completed: false });
+    static addTodo({ title, dueDate, userId }) {
+      return this.create({
+        title: title,
+        dueDate: dueDate,
+        completed: false,
+        userId,
+      });
     }
 
     static getTodo() {
       return this.findAll();
     }
 
-    static overdueTodo() {
+    static overdueTodo(userId) {
       return this.findAll({
         where: {
           dueDate: { [Op.lt]: new Date() },
           completed: false,
+          userId,
         },
         order: [["dueDate", "ASC"]],
       });
     }
 
-    static duetodayTodo() {
+    static duetodayTodo(userId) {
       return this.findAll({
         where: {
           dueDate: { [Op.eq]: new Date() },
           completed: false,
+          userId,
         },
         order: [["dueDate", "ASC"]],
       });
     }
 
-    static markAsCompletedItems() {
+    static markAsCompletedItems(userId) {
       return this.findAll({
         where: {
           completed: true,
+          userId,
         },
         order: [["id", "ASC"]],
       });
     }
 
-    static duelaterTodo() {
+    static duelaterTodo(userId) {
       return this.findAll({
         where: {
           dueDate: { [Op.gt]: new Date() },
           completed: false,
+          userId,
         },
         order: [["dueDate", "ASC"]],
       });
@@ -66,10 +77,11 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async remove(id) {
+    static async remove(id, userId) {
       return this.destroy({
         where: {
           id,
+          userId,
         },
       });
     }
