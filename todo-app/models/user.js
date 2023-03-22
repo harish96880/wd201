@@ -12,6 +12,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "userId",
       });
     }
+
+    // static getName() {
+    //   return this.findOne({
+    //     where: {
+    //       attribute: ["firstName"],
+    //     },
+    //   });
+    // }
   }
   User.init(
     {

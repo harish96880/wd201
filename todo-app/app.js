@@ -12,6 +12,7 @@ var csurf = require("tiny-csrf");
 var cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const flash = require("connect-flash");
+const user = require("./models/user");
 
 const saltRounds = 10;
 
@@ -96,6 +97,7 @@ app.get(
     const duetodayTodoItems = await Todo.duetodayTodo(loggedInUser);
     const duelaterTodoItems = await Todo.duelaterTodo(loggedInUser);
     const completedTodoItems = await Todo.markAsCompletedItems(loggedInUser);
+    // const getUserName = await User.getName(loggedInUser);
     if (request.accepts("html")) {
       response.render("todo", {
         title: "Todo application",
