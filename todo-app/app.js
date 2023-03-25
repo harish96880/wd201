@@ -58,7 +58,9 @@ passport.use(
           }
         })
         .catch((error) => {
-          return done(error);
+          return done(null, false, {
+            message: "Account doesn't exist for this mail id",
+          });
         });
     }
   )
@@ -83,7 +85,7 @@ app.set("view engine", "ejs");
 
 app.get("/", async (request, response) => {
   response.render("index", {
-    title: "Todo application",
+    title: "Harish Todo-Manager",
     "csrfToken": request.csrfToken(), //prettier-ignore
   });
 });
@@ -100,7 +102,7 @@ app.get(
     // const getUserName = await User.getName(loggedInUser);
     if (request.accepts("html")) {
       response.render("todo", {
-        title: "Todo application",
+        title: "Harish Todo-Manager",
         overdueTodoItems,
         duelaterTodoItems,
         duetodayTodoItems,

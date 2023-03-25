@@ -60,6 +60,7 @@
         <%- include("header.ejs") %>
         <h1>Welcome</h1>
         <a href="/signout">Sign out</a>
+        <a href="/signout">&nbsp;&nbsp;&nbsp;&nbsp;Account</a>
         <form action="/todos" method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="flex gap-2 py-4">
